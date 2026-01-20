@@ -1,66 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:candil/theme.dart';
 
-class Header extends StatefulWidget {
-  const Header({Key? key}) : super(key: key);
+class Header extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onChanged;
 
-  @override
-  State<Header> createState() => _HeaderState();
-}
+  const Header({
+    Key? key,
+    required this.currentIndex,
+    required this.onChanged,
+  }) : super(key: key);
 
-class _HeaderState extends State<Header> {
-  int activeIndex = 0;
-  final List<String> menus = ['Beranda', 'Baca', 'Pinjam', 'Chat'];
-
-  Alignment _alignmentForIndex(int index) {
-    final step = 2 / (menus.length - 1);
-    return Alignment(-1 + (step * index), 0);
-  }
+  final tabs = const ['Beranda', 'Baca', 'Pinjam', 'Chat'];
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(5),
+      height: 50,
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: blue1,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Stack(
         children: [
-          /// 🔹 BOX PUTIH (GESER)
+          // ANIMATED BACKGROUND
           AnimatedAlign(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            alignment: _alignmentForIndex(activeIndex),
-            child: FractionallySizedBox(
-              widthFactor: 1 / menus.length,
-              child: Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(100),
-                ),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: Alignment(
+              -1 + (currentIndex * 2 / (tabs.length - 1)),
+              0,
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width / 4 - 20,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
               ),
             ),
           ),
 
-          /// 🔹 MENU TEXT
+          // TABS
           Row(
-            children: List.generate(menus.length, (index) {
-              final bool isActive = index == activeIndex;
-
+            children: List.generate(tabs.length, (index) {
+              final isActive = index == currentIndex;
               return Expanded(
                 child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      activeIndex = index;
-                    });
-                  },
-                  child: Container(
-                    height: 44,
-                    alignment: Alignment.center,
+                  onTap: () => onChanged(index),
+                  child: Center(
                     child: Text(
-                      menus[index],
+                      tabs[index],
                       style: semibold14.copyWith(
                         color: isActive ? blue1 : Colors.white,
                       ),
