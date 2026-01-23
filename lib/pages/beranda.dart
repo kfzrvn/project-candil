@@ -33,40 +33,57 @@ class BerandaPage extends StatelessWidget {
             ),
           ),
 
-          // BANNER
+          // BANNER (MODIFIKASI: GRADASI & WARNA PUTIH)
+          // BANNER (GRADASI LEBIH INTENS)
           Padding(
             padding: const EdgeInsets.all(15),
             child: Container(
               height: 110,
               decoration: BoxDecoration(
-                color: dark4,
+                // [MODIFIKASI] Gradasi lebih kontras (Intens)
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    // Opacity 0.5 membuat warna awal jauh lebih muda/terang
+                    // sehingga kontras dengan warna akhir (efek kilat lebih kuat)
+                    Color.fromARGB(255, 157, 181, 245),
+                    Color.fromARGB(255, 203, 213, 240),
+                  ],
+                  // Mengatur titik perpindahan agar cahaya fokus di pojok kiri atas
+                  stops: const [0.0, 0.8],
+                ),
                 borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: const Color(0xFFBDBCBC)),
+                // Border putih tipis transparan untuk mempercantik
+                border: Border.all(
+                    color: Colors.white.withOpacity(0.2), width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
+                    color: blue3.withOpacity(0.4),
+                    blurRadius: 17,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
               child: Row(
                 children: [
                   const SizedBox(width: 15),
-                  Icon(Icons.person, size: 60, color: blue3),
+                  // Icon User Putih
+                  Icon(Icons.person, size: 60, color: blue1),
                   const SizedBox(width: 15),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Teks Putih
                       Text(
                         'Halo, Selamat Pagi',
                         style:
-                            regular14.copyWith(color: blue3.withOpacity(0.8)),
+                            regular14.copyWith(color: blue1.withOpacity(0.9)),
                       ),
                       Text(
                         'Nama Pengguna',
-                        style: semibold14.copyWith(color: blue3),
+                        style: semibold14.copyWith(color: blue1),
                       ),
                     ],
                   ),
@@ -117,62 +134,6 @@ class BerandaPage extends StatelessWidget {
                   ],
                 );
               }).toList(),
-            ),
-          ),
-
-          // EXPERIENCE SECTION ⭐
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 0,
-              left: 15,
-              right: 15,
-              bottom: 20,
-            ),
-            child: Container(
-              height: 65,
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Color.fromARGB(255, 205, 201, 252),
-                    Color(0xFFFFFFFF),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: const Color(0xFFE8E8E8)),
-              ),
-              child: Stack(
-                children: [
-                  // DOTS BACKGROUND
-                  Positioned(
-                    left: 3,
-                    bottom: 3,
-                    child: Image.asset(
-                      'assets/icons/dots.png',
-                      fit: BoxFit.none,
-                      alignment: Alignment.bottomLeft,
-                      color: Colors.white.withOpacity(0.07),
-                      colorBlendMode: BlendMode.srcATop,
-                    ),
-                  ),
-
-                  // ⭐ STAR ICON
-                  // ⭐ STAR ICON (UKURAN MANUAL)
-                  Positioned(
-                    left: 17,
-                    top: 13, // cukup satu anchor
-                    child: SizedBox(
-                      width: 35,
-                      height: 35,
-                      child: Image.asset(
-                        'assets/icons/star.png',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],

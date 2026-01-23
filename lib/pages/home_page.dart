@@ -35,11 +35,12 @@ class _HomepageState extends State<Homepage> {
       ),
       body: IndexedStack(
         index: currentIndex,
-        children: const [
-          BerandaPage(),
-          BacaPage(),
-          PinjamPage(),
-          ChatPage(),
+        children: [
+          // const dihapus di sini
+          const BerandaPage(), // Tambahkan const manual di sini jika perlu
+          const BacaPage(), // Tambahkan const manual di sini jika perlu
+          PinjamPage(), // PinjamPage tidak pakai const
+          const ChatPage(), // Tambahkan const manual di sini jika perlu
         ],
       ),
     );

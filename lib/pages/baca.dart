@@ -92,68 +92,93 @@ class _BacaPageState extends State<BacaPage> {
         const SizedBox(height: 8),
 
         /// =========================
-        /// LIST BUKU
+        /// LIST BUKU DENGAN SHADER MASK
         /// =========================
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            itemCount: 10,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE8E8E8)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 45,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFECB3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.book,
-                        size: 28,
-                        color: Color(0xFFFFA000),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Judul Buku ${index + 1}',
-                            style: semibold14.copyWith(color: dark1),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Nama Penulis',
-                            style: regular12_5.copyWith(color: dark3),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.chevron_right,
-                      color: Colors.grey,
-                    ),
-                  ],
-                ),
-              );
+          // [MODIFIKASI] Menambahkan ShaderMask
+          child: ShaderMask(
+            shaderCallback: (Rect rect) {
+              return const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.purple, // Warna atas (akan jadi transparan)
+                  Colors.transparent, // Warna tengah (akan terlihat jelas)
+                  Colors.transparent,
+                  Colors.purple // Warna bawah (jika ingin fade bawah juga)
+                ],
+                stops: [
+                  0.0, // Mulai pudar di paling atas
+                  0.05, // Mulai jelas di 5% dari atas
+                  0.95, // Mulai pudar lagi di 95% ke bawah (opsional)
+                  1.0
+                ],
+              ).createShader(rect);
             },
+            blendMode: BlendMode
+                .dstOut, // Mode agar warna ungu membuat konten jadi transparan
+            child: ListView.builder(
+              // Tambahkan padding top agar item pertama tidak terlalu mepet pudar
+              padding: const EdgeInsets.only(
+                  left: 15, right: 15, top: 10, bottom: 20),
+              itemCount: 10,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE8E8E8)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 45,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFECB3),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.book,
+                          size: 28,
+                          color: Color(0xFFFFA000),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Judul Buku ${index + 1}',
+                              style: semibold14.copyWith(color: dark1),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Nama Penulis',
+                              style: regular12_5.copyWith(color: dark3),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],
