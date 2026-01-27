@@ -1,4 +1,4 @@
-import 'package:candil/pages/home_page.dart';
+import 'package:candil/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Candil',
       debugShowCheckedModeBanner: false,
-      home: Homepage(),
+      home: LoginPage(),
     );
   }
 }

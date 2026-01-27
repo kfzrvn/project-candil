@@ -11,7 +11,7 @@ class LoginPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // ================= HEADER =================
+            // HEADER
             SizedBox(
               height: 300,
               width: double.infinity,
@@ -24,7 +24,7 @@ class LoginPage extends StatelessWidget {
                     color: const Color(0xFF3F63D3),
                   ),
 
-                  // Logo + Brand
+                  // Logo si candi;
                   Positioned(
                     top: 10,
                     left: 0,
@@ -32,7 +32,7 @@ class LoginPage extends StatelessWidget {
                     child: Column(
                       children: [
                         Image.asset(
-                          'assets/gambar/logo_candil.png',
+                          'assets/images/logo_candil.png',
                           width: 140,
                         ),
                         const SizedBox(height: 1),
@@ -54,7 +54,7 @@ class LoginPage extends StatelessWidget {
                     left: 0,
                     right: 0,
                     child: Image.asset(
-                      'assets/gambar/shape_bodas.png',
+                      'assets/iamges/shape_bodas.png',
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
@@ -206,7 +206,7 @@ class LoginPage extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () {},
               icon: Image.asset(
-                'assets/gambar/google.png',
+                'assets/images/google.png',
                 width: 20,
               ),
               label: const Text('Login dengan Google'),
@@ -214,7 +214,7 @@ class LoginPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // ================= REGISTER (KLIKABLE) =================
+            // REGISTER
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
