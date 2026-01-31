@@ -6,10 +6,10 @@ class Header extends StatelessWidget {
   final Function(int) onChanged;
 
   const Header({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   final tabs = const ['Beranda', 'Baca', 'Pinjam', 'Chat'];
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:candil/theme.dart';
 
 class BacaPage extends StatefulWidget {
-  const BacaPage({Key? key}) : super(key: key);
+  const BacaPage({super.key});
 
   @override
   State<BacaPage> createState() => _BacaPageState();
@@ -34,10 +34,6 @@ class _BacaPageState extends State<BacaPage> {
     return Column(
       children: [
         const SizedBox(height: 12),
-
-        /// =========================
-        /// KATEGORI
-        /// =========================
         SizedBox(
           height: 62,
           child: ListView.builder(
@@ -88,31 +84,20 @@ class _BacaPageState extends State<BacaPage> {
             },
           ),
         ),
-
         const SizedBox(height: 8),
-
-        /// =========================
-        /// LIST BUKU DENGAN SHADER MASK
-        /// =========================
         Expanded(
-          // [MODIFIKASI] Menambahkan ShaderMask
           child: ShaderMask(
             shaderCallback: (Rect rect) {
               return const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.purple, // Warna atas (akan jadi transparan)
-                  Colors.transparent, // Warna tengah (akan terlihat jelas)
+                  Colors.purple,
                   Colors.transparent,
-                  Colors.purple // Warna bawah (jika ingin fade bawah juga)
+                  Colors.transparent,
+                  Colors.purple
                 ],
-                stops: [
-                  0.0, // Mulai pudar di paling atas
-                  0.05, // Mulai jelas di 5% dari atas
-                  0.95, // Mulai pudar lagi di 95% ke bawah (opsional)
-                  1.0
-                ],
+                stops: [0.0, 0.05, 0.95, 1.0],
               ).createShader(rect);
             },
             blendMode: BlendMode

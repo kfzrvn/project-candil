@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:candil/theme.dart'; // Pastikan import theme benar
 
 class PinjamPage extends StatelessWidget {
-  PinjamPage({Key? key}) : super(key: key);
+  PinjamPage({super.key});
 
   // DATA DUMMY BUKU
 
@@ -124,7 +124,7 @@ class PinjamPage extends StatelessWidget {
 
               Color.fromARGB(255, 157, 181, 245), // Cream gelap/oranye (Atas)
             ],
-            stops: const [
+            stops: [
               0.1,
               0.6
             ]),

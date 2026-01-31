@@ -87,7 +87,7 @@ class BerandaPage extends StatelessWidget {
           ),
         ),
 
-        // 3. MENU ICONS
+        // MENU ICONS
         Padding(
           padding: const EdgeInsets.only(left: 27, right: 27, top: 32),
           child: GridView.count(
