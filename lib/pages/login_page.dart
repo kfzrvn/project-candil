@@ -1,8 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart'; // ⭐ BARU (iOS popup)
 import 'register_page.dart';
+import 'home_page.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  // ================= iOS STYLE POPUP 
+  void _showIosAlert(String message) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Login Gagal'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(message),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _login() {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showIosAlert('Email dan password wajib diisi');
+      return;
+    }
+
+    // HARDCODE LOGIN
+    if (email == 'user@gmail.com' && password == '123456') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Homepage(),
+        ),
+      );
+    } else {
+      _showIosAlert('Email atau password salah');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,20 +66,16 @@ class LoginPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // HEADER
             SizedBox(
               height: 300,
               width: double.infinity,
               child: Stack(
                 children: [
-                  // Background biru
                   Container(
                     height: 250,
                     width: double.infinity,
                     color: const Color(0xFF3F63D3),
                   ),
-
-                  // Logo si candi;
                   Positioned(
                     top: 10,
                     left: 0,
@@ -47,14 +98,12 @@ class LoginPage extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Shape putih dari Figma
                   Positioned(
                     top: 202,
                     left: 0,
                     right: 0,
                     child: Image.asset(
-                      'assets/iamges/shape_bodas.png',
+                      'assets/images/shape_bodas.png',
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
@@ -63,7 +112,6 @@ class LoginPage extends StatelessWidget {
               ),
             ),
 
-            // ================= TEXT =================
             Transform.translate(
               offset: const Offset(0, -20),
               child: Column(
@@ -89,85 +137,40 @@ class LoginPage extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // ================= EMAIL =================
+            // EMAIL 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 14,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 18),
-                  ),
-                ),
+              child: _inputBox(
+                controller: emailController,
+                hint: 'Email',
+                icon: Icons.email_outlined,
+                obscure: false,
               ),
             ),
 
             const SizedBox(height: 18),
 
-            // ================= PASSWORD =================
+            // PASSWORD
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 14,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon:
-                        const Icon(Icons.visibility_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 18),
-                  ),
-                ),
+              child: _inputBox(
+                controller: passwordController,
+                hint: 'Password',
+                icon: Icons.lock_outline,
+                obscure: true,
               ),
             ),
 
             const SizedBox(height: 28),
 
-            // ================= LOGIN =================
+            // LOGIN BUTTON
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: SizedBox(
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3F63D3),
                     foregroundColor: Colors.white,
@@ -214,12 +217,11 @@ class LoginPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // REGISTER
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text('Belum punya akun? '),
-                GestureDetector(
+                InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
@@ -228,11 +230,14 @@ class LoginPage extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(
-                      color: Color(0xFF3F63D3),
-                      fontWeight: FontWeight.w600,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: Text(
+                      'Register',
+                      style: TextStyle(
+                        color: Color(0xFF3F63D3),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -245,4 +250,41 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
+}
+
+// ================= INPUT BOX (3D) =================
+Widget _inputBox({
+  required TextEditingController controller,
+  required String hint,
+  required IconData icon,
+  required bool obscure,
+}) {
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.15),
+          blurRadius: 14,
+          offset: const Offset(0, 6),
+        ),
+      ],
+    ),
+    child: TextField(
+      controller: controller,
+      obscureText: obscure,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 18),
+      ),
+    ),
+  );
 }

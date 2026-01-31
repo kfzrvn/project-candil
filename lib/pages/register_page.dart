@@ -64,8 +64,8 @@ class RegisterPage extends StatelessWidget {
 
               // Logo
               Image.asset(
-                'assets/gambar/logo_candil.png',
-                width: 110,
+                'assets/images/logo_candil.png',
+                width: 150,
               ),
 
               const SizedBox(height: 12),
@@ -93,8 +93,7 @@ class RegisterPage extends StatelessWidget {
                 'Satu akun untuk membaca ribuan buku',
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
+                  color: Color.fromARGB(255, 104, 104, 104),
                 ),
               ),
 

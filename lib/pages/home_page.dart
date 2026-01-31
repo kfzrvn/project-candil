@@ -7,7 +7,7 @@ import 'package:candil/pages/chat.dart';
 import 'package:candil/theme.dart';
 
 class Homepage extends StatefulWidget {
-  const Homepage({Key? key}) : super(key: key);
+  const Homepage({super.key});
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -36,11 +36,10 @@ class _HomepageState extends State<Homepage> {
       body: IndexedStack(
         index: currentIndex,
         children: [
-          // const dihapus di sini
-          const BerandaPage(), // Tambahkan const manual di sini jika perlu
-          const BacaPage(), // Tambahkan const manual di sini jika perlu
-          PinjamPage(), // PinjamPage tidak pakai const
-          const ChatPage(), // Tambahkan const manual di sini jika perlu
+          const BerandaPage(),
+          const BacaPage(),
+          PinjamPage(),
+          const ChatPage(),
         ],
       ),
     );
