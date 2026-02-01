@@ -1,9 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:candil/datas/icons.dart';
 import 'package:candil/theme.dart';
+import 'package:candil/pages/kategori.dart'; // Import halaman Kategori
 
 class BerandaPage extends StatelessWidget {
   const BerandaPage({Key? key}) : super(key: key);
+
+  // Fungsi untuk menangani klik menu
+  void _handleMenuTap(BuildContext context, String title) {
+    switch (title) {
+      case 'Kategori':
+        // HANYA Kategori yang pindah halaman sungguhan
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const KategoriPage()),
+        );
+        break;
+
+      // Jika nanti sudah punya halaman Buku, uncomment ini:
+      /*
+      case 'Buku':
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const BukuPage()));
+        break;
+      */
+
+      default:
+        // MENU LAIN (Buku, E-book, dll) HANYA MUNCUL PESAN
+        // Ini menggantikan Halaman Dummy, jadi lebih ringkas.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Fitur $title belum tersedia"),
+            duration: const Duration(seconds: 1),
+            backgroundColor: dark1,
+          ),
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +43,7 @@ class BerandaPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // =========================================
-        // BAGIAN FIXED (HEADER + JUDUL TRENDING)
+        // BAGIAN FIXED
         // =========================================
 
         // 1. SEARCH BAR
@@ -87,7 +119,7 @@ class BerandaPage extends StatelessWidget {
           ),
         ),
 
-        // MENU ICONS
+        // 3. MENU ICONS
         Padding(
           padding: const EdgeInsets.only(left: 27, right: 27, top: 32),
           child: GridView.count(
@@ -96,46 +128,48 @@ class BerandaPage extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 16,
             children: menuIcons.map((icon) {
-              return Column(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: const Color(0xFFE8E8E8)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
+              return GestureDetector(
+                onTap: () => _handleMenuTap(context, icon.title),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: const Color(0xFFE8E8E8)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Icon(
+                          icon.iconData,
+                          size: 24,
+                          color: icon.color ?? blue3,
                         ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Icon(
-                        icon.iconData,
-                        size: 24,
-                        color: icon.color ?? blue3,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    icon.title,
-                    style: regular12_5.copyWith(color: dark2),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      icon.title,
+                      style: regular12_5.copyWith(color: dark2),
+                    ),
+                  ],
+                ),
               );
             }).toList(),
           ),
         ),
 
-        // 4. JUDUL TRENDING (PINDAH KE SINI AGAR FIXED/DIAM)
+        // 4. JUDUL TRENDING
         Padding(
-          // Atur jarak atas dari menu icon (30) dan bawah ke kartu (10)
-          padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
+          padding: const EdgeInsets.fromLTRB(15, 30, 15, 10),
           child: Text(
             "Trending",
             style: bold18.copyWith(color: dark1),
@@ -143,16 +177,14 @@ class BerandaPage extends StatelessWidget {
         ),
 
         // =========================================
-        // BAGIAN SCROLLABLE (HANYA KARTU)
+        // BAGIAN SCROLLABLE
         // =========================================
 
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-                15, 0, 15, 30), // Top 0 karena judul sudah di luar
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 30),
             child: Column(
               children: [
-                // KARTU UTAMA
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -170,7 +202,6 @@ class BerandaPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // BAGIAN A: GAMBAR
                       Container(
                         width: double.infinity,
                         height: 160,
@@ -183,8 +214,6 @@ class BerandaPage extends StatelessWidget {
                           ),
                         ),
                       ),
-
-                      // BAGIAN B: TEKS KETERANGAN
                       Padding(
                         padding: const EdgeInsets.all(20),
                         child: Column(

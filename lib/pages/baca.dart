@@ -33,7 +33,37 @@ class _BacaPageState extends State<BacaPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 12),
+        // =========================================
+        // [TAMBAHAN] SEARCH BAR
+        // =========================================
+        Padding(
+          padding:
+              const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAFAFA),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: const Color(0xFFE8E8E8)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.search, size: 24, color: blue3),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Telusuri Buku',
+                    style: regular14.copyWith(color: dark3),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // =========================================
+        // KATEGORI
+        // =========================================
         SizedBox(
           height: 62,
           child: ListView.builder(
@@ -84,7 +114,12 @@ class _BacaPageState extends State<BacaPage> {
             },
           ),
         ),
+
         const SizedBox(height: 8),
+
+        // =========================================
+        // LIST BUKU
+        // =========================================
         Expanded(
           child: ShaderMask(
             shaderCallback: (Rect rect) {
@@ -100,10 +135,8 @@ class _BacaPageState extends State<BacaPage> {
                 stops: [0.0, 0.05, 0.95, 1.0],
               ).createShader(rect);
             },
-            blendMode: BlendMode
-                .dstOut, // Mode agar warna ungu membuat konten jadi transparan
+            blendMode: BlendMode.dstOut,
             child: ListView.builder(
-              // Tambahkan padding top agar item pertama tidak terlalu mepet pudar
               padding: const EdgeInsets.only(
                   left: 15, right: 15, top: 10, bottom: 20),
               itemCount: 10,
