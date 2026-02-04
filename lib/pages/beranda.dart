@@ -1,32 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:candil/datas/icons.dart';
 import 'package:candil/theme.dart';
-import 'package:candil/pages/kategori.dart'; // Import halaman Kategori
+import 'package:candil/pages/kategori.dart';
+import 'package:candil/pages/login_page.dart';
 
-class BerandaPage extends StatelessWidget {
+class BerandaPage extends StatefulWidget {
   const BerandaPage({Key? key}) : super(key: key);
 
-  // Fungsi untuk menangani klik menu
+  @override
+  State<BerandaPage> createState() => _BerandaPageState();
+}
+
+class _BerandaPageState extends State<BerandaPage> {
+  String userName = 'Pengguna';
+
+  @override
+  void initState() {
+    super.initState();
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      setState(() {
+        userName =
+            user.displayName ?? user.email?.split('@').first ?? 'Pengguna';
+      });
+    }
+  }
+
+  // ================= LOGOUT =================
+  void _logout() async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text('Keluar Akun'),
+        content: const Text('Yakin ingin logout dari akun ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+
+              if (!mounted) return;
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginPage(),
+                ),
+                (route) => false,
+              );
+            },
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================= HANDLE MENU =================
   void _handleMenuTap(BuildContext context, String title) {
     switch (title) {
       case 'Kategori':
-        // HANYA Kategori yang pindah halaman sungguhan
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const KategoriPage()),
         );
         break;
 
-      // Jika nanti sudah punya halaman Buku, uncomment ini:
-      /*
-      case 'Buku':
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const BukuPage()));
-        break;
-      */
-
       default:
-        // MENU LAIN (Buku, E-book, dll) HANYA MUNCUL PESAN
-        // Ini menggantikan Halaman Dummy, jadi lebih ringkas.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Fitur $title belum tersedia"),
@@ -42,11 +97,7 @@ class BerandaPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // =========================================
-        // BAGIAN FIXED
-        // =========================================
-
-        // 1. SEARCH BAR
+        // ================= SEARCH BAR =================
         Padding(
           padding: const EdgeInsets.only(top: 23, left: 15, right: 15),
           child: Container(
@@ -69,57 +120,72 @@ class BerandaPage extends StatelessWidget {
           ),
         ),
 
-        // 2. BANNER PROFILE
+        // BANNER PROFILE + LOGOUT
         Padding(
           padding: const EdgeInsets.all(15),
-          child: Container(
-            height: 110,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color.fromARGB(255, 157, 181, 245),
-                  Color.fromARGB(255, 203, 213, 240),
-                ],
-                stops: const [0.0, 0.8],
-              ),
-              borderRadius: BorderRadius.circular(15),
-              border:
-                  Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: blue3.withOpacity(0.4),
-                  blurRadius: 17,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 15),
-                Icon(Icons.person, size: 60, color: blue1),
-                const SizedBox(width: 15),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Halo, Selamat Pagi',
-                      style: regular14.copyWith(color: blue1.withOpacity(0.9)),
-                    ),
-                    Text(
-                      'Nama Pengguna',
-                      style: semibold14.copyWith(color: blue1),
+          child: Stack(
+            children: [
+              Container(
+                height: 110,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      const Color.fromARGB(255, 157, 181, 245),
+                      const Color.fromARGB(255, 203, 213, 240),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: blue3.withOpacity(0.4),
+                      blurRadius: 17,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
-              ],
-            ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 15),
+                    Icon(Icons.person, size: 60, color: blue1),
+                    const SizedBox(width: 15),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Halo, Selamat Datang 👋',
+                          style: regular14.copyWith(
+                            color: blue1.withOpacity(0.9),
+                          ),
+                        ),
+                        Text(
+                          userName,
+                          style: semibold14.copyWith(color: blue1),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // 🔥 LOGOUT BUTTON
+              Positioned(
+                top: 8,
+                right: 8,
+                child: IconButton(
+                  icon: const Icon(Icons.logout),
+                  color: blue1,
+                  onPressed: _logout,
+                  tooltip: 'Logout',
+                ),
+              ),
+            ],
           ),
         ),
 
-        // 3. MENU ICONS
+        // ================= MENU ICONS =================
         Padding(
           padding: const EdgeInsets.only(left: 27, right: 27, top: 32),
           child: GridView.count(
@@ -167,7 +233,7 @@ class BerandaPage extends StatelessWidget {
           ),
         ),
 
-        // 4. JUDUL TRENDING
+        // Page trnedning
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 30, 15, 10),
           child: Text(
@@ -176,71 +242,22 @@ class BerandaPage extends StatelessWidget {
           ),
         ),
 
-        // =========================================
-        // BAGIAN SCROLLABLE
-        // =========================================
-
+        // =Conten
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 30),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE8E8E8)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 160,
-                        decoration: const BoxDecoration(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(20)),
-                          image: DecorationImage(
-                            image: AssetImage('assets/images/news1.jpg'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Makin Seru 😉",
-                              style: semibold14.copyWith(
-                                  fontSize: 16,
-                                  color: dark1,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Temukan koleksi buku terbaru dan promo menarik minggu ini. Jangan sampai kelewatan!",
-                              style: regular14.copyWith(
-                                color: const Color(0xFF757575),
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            child: Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE8E8E8)),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                'Konten Trending',
+                style: regular14.copyWith(color: dark2),
+              ),
             ),
           ),
         ),

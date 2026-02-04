@@ -33,9 +33,7 @@ class _BacaPageState extends State<BacaPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // =========================================
         // [TAMBAHAN] SEARCH BAR
-        // =========================================
         Padding(
           padding:
               const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 10),
@@ -60,10 +58,8 @@ class _BacaPageState extends State<BacaPage> {
             ),
           ),
         ),
-
-        // =========================================
+        
         // KATEGORI
-        // =========================================
         SizedBox(
           height: 62,
           child: ListView.builder(

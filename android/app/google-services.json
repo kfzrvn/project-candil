@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1064776457869",
+    "project_id": "project-candil",
+    "storage_bucket": "project-candil.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1064776457869:android:1a95c19bc40c831c4c4cc4",
+        "android_client_info": {
+          "package_name": "com.example.candil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAwDIvBimU2SeoqzCDXzDIIWB7Fv_WDwo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
