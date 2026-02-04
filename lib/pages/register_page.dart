@@ -1,13 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  // ================= BARU (1) CONTROLLERS =================
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  bool agree = false;
+  bool showPassword = false;
+  bool showConfirmPassword = false;
+
+  // ================= BARU (2) REGISTER FUNCTION =================
+  Future<void> _register() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      _showDialog('Form belum lengkap');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showDialog('Password tidak sama');
+      return;
+    }
+
+    if (!agree) {
+      _showDialog('Kamu harus menyetujui syarat & ketentuan');
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      _showDialog(
+        'Registrasi berhasil',
+        success: true,
+      );
+    } on FirebaseAuthException catch (e) {
+      _showDialog(e.message ?? 'Register gagal');
+    }
+  }
+
+  // ================= BARU (3) iOS STYLE POPUP =================
+  void _showDialog(String message, {bool success = false}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Text(success ? 'Berhasil' : 'Gagal'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (success) Navigator.pop(context); // balik ke login
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================= 3D INPUT =================
   Widget build3DInput({
+    required TextEditingController controller,
     required String hint,
     required IconData icon,
     bool isPassword = false,
     bool showEye = false,
+    VoidCallback? toggle,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -22,11 +100,21 @@ class RegisterPage extends StatelessWidget {
         ],
       ),
       child: TextField(
+        controller: controller,
         obscureText: isPassword,
         decoration: InputDecoration(
           hintText: hint,
           prefixIcon: Icon(icon),
-          suffixIcon: showEye ? const Icon(Icons.visibility_outlined) : null,
+          suffixIcon: showEye
+              ? IconButton(
+                  icon: Icon(
+                    isPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility_outlined,
+                  ),
+                  onPressed: toggle,
+                )
+              : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -60,9 +148,6 @@ class RegisterPage extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 10),
-
-              // Logo
               Image.asset(
                 'assets/images/logo_candil.png',
                 width: 150,
@@ -93,7 +178,7 @@ class RegisterPage extends StatelessWidget {
                 'Satu akun untuk membaca ribuan buku',
                 style: TextStyle(
                   fontSize: 13,
-                  color: Color.fromARGB(255, 104, 104, 104),
+                  color: Color(0xFF686868),
                 ),
               ),
 
@@ -101,6 +186,7 @@ class RegisterPage extends StatelessWidget {
 
               // ================= INPUT =================
               build3DInput(
+                controller: nameController,
                 hint: 'Nama lengkap',
                 icon: Icons.person_outline,
               ),
@@ -108,6 +194,7 @@ class RegisterPage extends StatelessWidget {
               const SizedBox(height: 18),
 
               build3DInput(
+                controller: emailController,
                 hint: 'Email',
                 icon: Icons.email_outlined,
               ),
@@ -115,28 +202,34 @@ class RegisterPage extends StatelessWidget {
               const SizedBox(height: 18),
 
               build3DInput(
+                controller: passwordController,
                 hint: 'Password',
                 icon: Icons.lock_outline,
-                isPassword: true,
+                isPassword: !showPassword,
                 showEye: true,
+                toggle: () => setState(() => showPassword = !showPassword),
               ),
 
               const SizedBox(height: 18),
 
               build3DInput(
+                controller: confirmPasswordController,
                 hint: 'Konfirmasi Password',
                 icon: Icons.lock_outline,
-                isPassword: true,
+                isPassword: !showConfirmPassword,
                 showEye: true,
+                toggle: () =>
+                    setState(() => showConfirmPassword = !showConfirmPassword),
               ),
 
               const SizedBox(height: 18),
-              // Check box
+
+              // ================= CHECKBOX =================
               Row(
                 children: [
                   Checkbox(
-                    value: true,
-                    onChanged: (v) {},
+                    value: agree,
+                    onChanged: (v) => setState(() => agree = v ?? false),
                     activeColor: const Color(0xFF6E8B6A),
                   ),
                   const Expanded(
@@ -158,7 +251,7 @@ class RegisterPage extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _register, // ⭐ BARU
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6E8B6A),
                     foregroundColor: Colors.white,

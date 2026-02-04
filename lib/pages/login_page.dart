@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart'; // ⭐ BARU (iOS popup)
+import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'register_page.dart';
 import 'home_page.dart';
 
@@ -11,15 +12,15 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  // ================= iOS STYLE POPUP 
-  void _showIosAlert(String message) {
+  // ================= iOS STYLE POPUP =================
+  void _showIosAlert(String title, String message) {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Login Gagal'),
+        title: Text(title),
         content: Padding(
           padding: const EdgeInsets.only(top: 8),
           child: Text(message),
@@ -28,34 +29,39 @@ class _LoginPageState extends State<LoginPage> {
           CupertinoDialogAction(
             isDefaultAction: true,
             child: const Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
     );
   }
 
-  void _login() {
+  // ================= LOGIN FIREBASE =================
+  Future<void> _login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      _showIosAlert('Email dan password wajib diisi');
+      _showIosAlert('Login Gagal', 'Email dan password wajib diisi');
       return;
     }
 
-    // HARDCODE LOGIN
-    if (email == 'user@gmail.com' && password == '123456') {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // LOGIN BERHASIL
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const Homepage(),
-        ),
+        MaterialPageRoute(builder: (_) => const Homepage()),
       );
-    } else {
-      _showIosAlert('Email atau password salah');
+    } on FirebaseAuthException catch (e) {
+      _showIosAlert(
+        'Login Gagal',
+        e.message ?? 'Email atau password salah',
+      );
     }
   }
 
@@ -66,6 +72,7 @@ class _LoginPageState extends State<LoginPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Header
             SizedBox(
               height: 300,
               width: double.infinity,
@@ -137,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 24),
 
-            // EMAIL 
+            // EMAIL
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: _inputBox(
@@ -226,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const RegisterPage(),
+                        builder: (_) => const RegisterPage(),
                       ),
                     );
                   },
@@ -252,7 +259,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// ================= INPUT BOX (3D) =================
+// INput Box
 Widget _inputBox({
   required TextEditingController controller,
   required String hint,
