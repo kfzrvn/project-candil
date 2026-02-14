@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:candil/datas/icons.dart';
 import 'package:candil/theme.dart';
 import 'package:candil/pages/kategori.dart';
+import 'package:candil/pages/profile_page.dart';
 import 'package:candil/pages/login_page.dart';
 
 class BerandaPage extends StatefulWidget {
@@ -29,7 +30,7 @@ class _BerandaPageState extends State<BerandaPage> {
     }
   }
 
-  // ================= LOGOUT =================
+  // ================= LOGOUT 
   void _logout() async {
     showDialog(
       context: context,
@@ -46,7 +47,7 @@ class _BerandaPageState extends State<BerandaPage> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: const Color.fromARGB(255, 255, 0, 0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -71,33 +72,44 @@ class _BerandaPageState extends State<BerandaPage> {
     );
   }
 
-  // ================= HANDLE MENU =================
-  void _handleMenuTap(BuildContext context, String title) {
-    switch (title) {
-      case 'Kategori':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const KategoriPage()),
-        );
-        break;
+  // HANDLE MENU 
+void _handleMenuTap(BuildContext context, String title) {
+  switch (title) {
+    case 'Kategori':
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const KategoriPage(),
+        ),
+      );
+      break;
 
-      default:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Fitur $title belum tersedia"),
-            duration: const Duration(seconds: 1),
-            backgroundColor: dark1,
-          ),
-        );
-    }
+    case 'Edit Profil':
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfilePage(),
+        ),
+      );
+      break;
+
+    default:
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Fitur $title belum tersedia'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ================= SEARCH BAR =================
+        // SEARCH BAR 
         Padding(
           padding: const EdgeInsets.only(top: 23, left: 15, right: 15),
           child: Container(
@@ -170,7 +182,7 @@ class _BerandaPageState extends State<BerandaPage> {
                 ),
               ),
 
-              // 🔥 LOGOUT BUTTON
+              //LOGOUT BUTTON
               Positioned(
                 top: 8,
                 right: 8,
