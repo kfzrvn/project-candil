@@ -16,7 +16,7 @@ class ProfilePage extends StatelessWidget {
       backgroundColor: const Color(0xFFF4F6FB),
       body: Stack(
         children: [
-          // ================= HEADER BIRU =================
+          // HEADER BIRU
           Container(
             height: 230,
             width: double.infinity,
@@ -25,7 +25,7 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
 
-          // ================= WAVE =================
+          // wave geol
           Positioned(
             top: 180,
             left: 0,
@@ -41,7 +41,7 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
 
-          // ================= CONTENT =================
+          // konten
           SafeArea(
             child: Column(
               children: [
@@ -69,7 +69,7 @@ class ProfilePage extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // ================= PROFILE CARD =================
+                // Profile
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Container(
@@ -87,7 +87,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        // AVATAR
+                        // Avatar
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
@@ -110,7 +110,7 @@ class ProfilePage extends StatelessWidget {
 
                         const SizedBox(height: 12),
 
-                        // NAME
+                        // Nama
                         Text(
                           userName,
                           style: const TextStyle(
@@ -121,7 +121,7 @@ class ProfilePage extends StatelessWidget {
 
                         const SizedBox(height: 4),
 
-                        // EMAIL
+                        // Email
                         Text(
                           email,
                           style: const TextStyle(
@@ -177,7 +177,7 @@ class ProfilePage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // ================= MENU
+                // MENU
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
