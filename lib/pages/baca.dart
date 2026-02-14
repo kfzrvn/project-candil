@@ -58,7 +58,7 @@ class _BacaPageState extends State<BacaPage> {
             ),
           ),
         ),
-        
+
         // KATEGORI
         SizedBox(
           height: 62,
