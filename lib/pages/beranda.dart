@@ -20,7 +20,6 @@ class _BerandaPageState extends State<BerandaPage> {
   void initState() {
     super.initState();
     final user = FirebaseAuth.instance.currentUser;
-
     if (user != null) {
       setState(() {
         userName =
@@ -54,7 +53,6 @@ class _BerandaPageState extends State<BerandaPage> {
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               if (!mounted) return;
-
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
