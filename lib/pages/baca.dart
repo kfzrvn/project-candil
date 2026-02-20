@@ -58,7 +58,7 @@ class _BacaPageState extends State<BacaPage> {
             ),
           ),
         ),
-        
+
         // KATEGORI
         SizedBox(
           height: 62,
@@ -112,10 +112,7 @@ class _BacaPageState extends State<BacaPage> {
         ),
 
         const SizedBox(height: 8),
-
-        // =========================================
         // LIST BUKU
-        // =========================================
         Expanded(
           child: ShaderMask(
             shaderCallback: (Rect rect) {

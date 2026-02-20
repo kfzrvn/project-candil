@@ -4,6 +4,7 @@ import 'package:candil/datas/icons.dart';
 import 'package:candil/theme.dart';
 import 'package:candil/pages/kategori.dart';
 import 'package:candil/pages/login_page.dart';
+import 'package:candil/pages/profile_page.dart';
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({Key? key}) : super(key: key);
@@ -76,6 +77,14 @@ class _BerandaPageState extends State<BerandaPage> {
           MaterialPageRoute(builder: (context) => const KategoriPage()),
         );
         break;
+
+      case 'Edit Profil':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfilePage()),
+        );
+        break;
+
       default:
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -92,11 +101,7 @@ class _BerandaPageState extends State<BerandaPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // =========================================
-        // BAGIAN FIXED
-        // =========================================
-
-        // 1. SEARCH BAR
+        // ================= SEARCH =================
         Padding(
           padding: const EdgeInsets.only(top: 23, left: 15, right: 15),
           child: Container(
@@ -119,7 +124,7 @@ class _BerandaPageState extends State<BerandaPage> {
           ),
         ),
 
-        // 2. BANNER PROFILE (CUSTOM HEIGHT CONTROL)
+// ================= BANNER PROFILE =================
         Padding(
           padding: const EdgeInsets.all(15),
           child: Container(
@@ -141,40 +146,33 @@ class _BerandaPageState extends State<BerandaPage> {
                   color: blue3.withOpacity(0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
-                  spreadRadius: 0,
                 ),
               ],
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment
-                  .start, // Wajib Start agar bisa didorong ke bawah
-              children: [
-                // A. CONTROLLER FOTO USER
-                Padding(
-                  // [ATUR TINGGI DISINI] Ubah 25.0 sesuai keinginan
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 18), // 🔥 INI YANG BIKIN POSISI NAIK
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // AVATAR
+                  SizedBox(
+                    width: 55,
+                    height: 55,
                     child: ClipOval(
                       child: Image.asset(
                         'assets/images/user.png',
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(Icons.person, size: 40, color: blue1);
-                        },
+                        errorBuilder: (_, __, ___) =>
+                            Icon(Icons.person, size: 40, color: blue1),
                       ),
                     ),
                   ),
-                ),
 
-                const SizedBox(width: 15),
+                  const SizedBox(width: 15),
 
-                // B. CONTROLLER TEKS
-                Expanded(
-                  child: Padding(
-                    // [ATUR TINGGI DISINI] Ubah 32.0 sesuai keinginan
-                    padding: const EdgeInsets.only(top: 20.0),
+                  // TEKS
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -184,53 +182,42 @@ class _BerandaPageState extends State<BerandaPage> {
                             color: blue1.withOpacity(0.9),
                           ),
                         ),
-                        const SizedBox(height: 1),
+                        const SizedBox(height: 4),
                         Text(
                           userName,
                           style: regular14.copyWith(
+                            // 🔥 tidak bold
                             color: blue1,
                             fontSize: 16,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                ),
 
-                // C. CONTROLLER TOMBOL LOGOUT
-                Padding(
-                  // [ATUR TINGGI DISINI] Ubah 20.0 sesuai keinginan
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: GestureDetector(
-                    onTap: _logout,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                      ),
+                  // LOGOUT ICON
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: GestureDetector(
+                      onTap: _logout,
                       child: Icon(
                         Icons.logout_rounded,
-                        size: 23,
+                        size: 22,
                         color: blue1,
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
 
-        // 3. MENU ICONS
+        // MENU ICON
         Padding(
           padding: const EdgeInsets.only(left: 27, right: 27, top: 28),
           child: GridView.count(
@@ -278,7 +265,7 @@ class _BerandaPageState extends State<BerandaPage> {
           ),
         ),
 
-        // 4. HEADER TRENDING
+        // ================= HEADER TRENDING =================
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 30, 15, 20),
           child: Stack(
@@ -298,7 +285,6 @@ class _BerandaPageState extends State<BerandaPage> {
                   "Koleksi Terbaru & Populer",
                   style: bold16.copyWith(
                     color: const Color(0xFF0D47A1),
-                    fontSize: 15,
                   ),
                 ),
               ),
@@ -308,86 +294,52 @@ class _BerandaPageState extends State<BerandaPage> {
                 child: Image.asset(
                   'assets/images/book.png',
                   height: 110,
-                  fit: BoxFit.contain,
                 ),
               ),
             ],
           ),
         ),
 
-        // =========================================
-        // BAGIAN SCROLLABLE
-        // =========================================
+        // ================= TRENDING CARD =================
         Expanded(
-          child: ShaderMask(
-            shaderCallback: (Rect rect) {
-              return const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.purple,
-                  Colors.transparent,
-                  Colors.transparent,
-                  Colors.transparent
-                ],
-                stops: [0.0, 0.05, 0.5, 1.0],
-              ).createShader(rect);
-            },
-            blendMode: BlendMode.dstOut,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(15, 0, 15, 30),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 30),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE8E8E8)),
+              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE8E8E8)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
+                    height: 160,
+                    decoration: const BoxDecoration(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20)),
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/news1.jpg'),
+                        fit: BoxFit.cover,
+                      ),
                     ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: double.infinity,
-                          height: 160,
-                          decoration: const BoxDecoration(
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(20)),
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/news1.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                        Text(
+                          "Makin Seru 😉",
+                          style: semibold14.copyWith(
+                              fontSize: 16, fontWeight: FontWeight.w700),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Makin Seru 😉",
-                                style: semibold14.copyWith(
-                                    fontSize: 16,
-                                    color: dark1,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "Temukan koleksi buku terbaru dan promo menarik minggu ini. Jangan sampai kelewatan!",
-                                style: regular14.copyWith(
-                                  color: const Color(0xFF757575),
-                                  height: 1.5,
-                                ),
-                              ),
-                            ],
+                        const SizedBox(height: 8),
+                        Text(
+                          "Temukan koleksi buku terbaru dan promo menarik minggu ini. Jangan sampai kelewatan!",
+                          style: regular14.copyWith(
+                            color: const Color(0xFF757575),
+                            height: 1.5,
                           ),
                         ),
                       ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:candil/theme.dart'; // Pastikan import theme benar
 
 class KategoriPage extends StatelessWidget {
-  const KategoriPage({super.key});
+  const KategoriPage({Key? key}) : super(key: key);
 
   // Data Dummy Kategori
   final List<Map<String, dynamic>> categories = const [
