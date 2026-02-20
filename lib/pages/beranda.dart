@@ -5,6 +5,7 @@ import 'package:candil/theme.dart';
 import 'package:candil/pages/kategori.dart';
 import 'package:candil/pages/login_page.dart';
 import 'package:candil/pages/profile_page.dart';
+import 'package:candil/pages/populer.dart';
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({Key? key}) : super(key: key);
@@ -85,6 +86,14 @@ class _BerandaPageState extends State<BerandaPage> {
         );
         break;
 
+      // 🔥 TAMBAHKAN CASE POPULER DISINI
+      case 'Populer':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const PopulerPage()),
+        );
+        break;
+
       default:
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -150,8 +159,7 @@ class _BerandaPageState extends State<BerandaPage> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 18), // 🔥 INI YANG BIKIN POSISI NAIK
+              padding: const EdgeInsets.only(top: 18),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -186,7 +194,6 @@ class _BerandaPageState extends State<BerandaPage> {
                         Text(
                           userName,
                           style: regular14.copyWith(
-                            // 🔥 tidak bold
                             color: blue1,
                             fontSize: 16,
                           ),

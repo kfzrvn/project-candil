@@ -56,7 +56,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Candil',
+                        'Profile',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
