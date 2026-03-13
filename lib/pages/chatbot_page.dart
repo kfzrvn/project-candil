@@ -196,6 +196,8 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
+
+          // ================= INPUT =================
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: const BoxDecoration(
