@@ -22,46 +22,49 @@ class Header extends StatelessWidget {
         color: blue1,
         borderRadius: BorderRadius.circular(30),
       ),
-      child: Stack(
-        children: [
-          // ANIMATED BACKGROUND
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            alignment: Alignment(
-              -1 + (currentIndex * 2 / (tabs.length - 1)),
-              0,
-            ),
-            child: Container(
-              width: MediaQuery.of(context).size.width / 4 - 20,
-              height: 42,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-              ),
-            ),
-          ),
-
-          // TABS
-          Row(
-            children: List.generate(tabs.length, (index) {
-              final isActive = index == currentIndex;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onChanged(index),
-                  child: Center(
-                    child: Text(
-                      tabs[index],
-                      style: semibold14.copyWith(
-                        color: isActive ? blue1 : Colors.white,
-                      ),
-                    ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final tabWidth = constraints.maxWidth / tabs.length;
+          return Stack(
+            children: [
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+                left: currentIndex * tabWidth,
+                top: 0,
+                bottom: 0,
+                width: tabWidth,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(25),
                   ),
                 ),
-              );
-            }),
-          ),
-        ],
+              ),
+              Row(
+                children: List.generate(tabs.length, (index) {
+                  final isActive = index == currentIndex;
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => onChanged(index),
+                      child: Container(
+                        color: Colors.transparent,
+                        child: Center(
+                          child: Text(
+                            tabs[index],
+                            style: semibold14.copyWith(
+                              color: isActive ? blue1 : Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

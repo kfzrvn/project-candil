@@ -1,3 +1,4 @@
+import 'package:candil/pages/bantuan.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:candil/datas/icons.dart';
@@ -6,6 +7,10 @@ import 'package:candil/pages/kategori.dart';
 import 'package:candil/pages/login_page.dart';
 import 'package:candil/pages/profile_page.dart';
 import 'package:candil/pages/populer.dart';
+import 'package:candil/pages/notif.dart';
+import 'package:candil/pages/riwayat.dart';
+import 'package:candil/pages/bookmark.dart';
+import 'package:candil/pages/announcement.dart';
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({Key? key}) : super(key: key);
@@ -92,6 +97,35 @@ class _BerandaPageState extends State<BerandaPage> {
           context,
           MaterialPageRoute(builder: (context) => const PopulerPage()),
         );
+        break;
+
+      case 'Bantuan':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const BantuanPage()),
+        );
+        break;
+
+      case 'Notif':
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const NotifPage()));
+        break;
+
+      case 'Riwayat':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const RiwayatPage()),
+        );
+        break;
+
+      case 'Bookmark':
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const BookmarkPage()));
+        break;
+
+      case 'Announcements':
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const AnnouncementsPage()));
         break;
 
       default:
