@@ -3,8 +3,8 @@ import 'package:candil/components/header.dart';
 import 'package:candil/pages/beranda.dart';
 import 'package:candil/pages/baca.dart';
 import 'package:candil/pages/pinjam.dart';
-import 'package:candil/pages/chat.dart';
 import 'package:candil/theme.dart';
+import 'package:candil/pages/chat_landing_page.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -39,7 +39,7 @@ class _HomepageState extends State<Homepage> {
           const BerandaPage(),
           const BacaPage(),
           PinjamPage(),
-          const ChatPage(),
+          const ChatLandingPage(),
         ],
       ),
     );
