@@ -34,7 +34,7 @@ class _BerandaPageState extends State<BerandaPage> {
     }
   }
 
-  // ================= LOGOUT =================
+  // LOGOUT
   void _logout() async {
     showDialog(
       context: context,
@@ -74,7 +74,7 @@ class _BerandaPageState extends State<BerandaPage> {
     );
   }
 
-  // ================= HANDLE MENU =================
+  // HANDLE MENU
   void _handleMenuTap(BuildContext context, String title) {
     switch (title) {
       case 'Kategori':
@@ -91,7 +91,7 @@ class _BerandaPageState extends State<BerandaPage> {
         );
         break;
 
-      // 🔥 TAMBAHKAN CASE POPULER DISINI
+      // TAMBAHKAN CASE POPULER DISINI
       case 'Populer':
         Navigator.push(
           context,
@@ -144,7 +144,7 @@ class _BerandaPageState extends State<BerandaPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ================= SEARCH =================
+        // SEARCH
         Padding(
           padding: const EdgeInsets.only(top: 23, left: 15, right: 15),
           child: Container(
@@ -167,7 +167,7 @@ class _BerandaPageState extends State<BerandaPage> {
           ),
         ),
 
-// ================= BANNER PROFILE =================
+        // BANNER PROFILE
         Padding(
           padding: const EdgeInsets.all(15),
           child: Container(
@@ -212,8 +212,6 @@ class _BerandaPageState extends State<BerandaPage> {
                   ),
 
                   const SizedBox(width: 15),
-
-                  // TEKS
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +234,6 @@ class _BerandaPageState extends State<BerandaPage> {
                     ),
                   ),
 
-                  // LOGOUT ICON
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
@@ -306,7 +303,7 @@ class _BerandaPageState extends State<BerandaPage> {
           ),
         ),
 
-        // ================= HEADER TRENDING =================
+        // HEADER TRENDING
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 30, 15, 20),
           child: Stack(
@@ -341,7 +338,7 @@ class _BerandaPageState extends State<BerandaPage> {
           ),
         ),
 
-        // ================= TRENDING CARD =================
+        // TRENDING CARD
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 30),

@@ -21,6 +21,8 @@ class _ChatLandingPageState extends State<ChatLandingPage>
   late Animation<double> item3Opacity;
   late Animation<Offset> item3Slide;
 
+  // masih belum fixing terkait pneggunaan ejaan //
+
   @override
   void initState() {
     super.initState();
@@ -49,7 +51,6 @@ class _ChatLandingPageState extends State<ChatLandingPage>
     ).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.4, 0.6)),
     );
-
     item3Opacity = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.6, 0.8)),
     );
@@ -119,7 +120,7 @@ class _ChatLandingPageState extends State<ChatLandingPage>
               ),
               const SizedBox(height: 30),
               Image.asset(
-                'assets/images/chatbot.png', // pastikan ada
+                'assets/images/chatbot.png',
                 height: 220,
               ),
               const SizedBox(height: 30),

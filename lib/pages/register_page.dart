@@ -86,7 +86,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ================= INPUT =================
   Widget build3DInput({
     required TextEditingController controller,
     required String hint,

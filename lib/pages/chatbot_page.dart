@@ -13,13 +13,10 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
 
   List<Map<String, dynamic>> messages = [
-    {
-      "text": "Halo 👋 Ada yang bisa saya bantu?",
-      "isUser": false,
-      "type": "text"
-    }
+    {"text": "Halo Ada yang bisa saya bantu?", "isUser": false, "type": "text"}
   ];
 
+  // belum fix masih manual//
   String getBotResponse(String message) {
     message = message.toLowerCase();
 
@@ -28,7 +25,7 @@ class _ChatPageState extends State<ChatPage> {
     } else if (message.contains("pinjam")) {
       return "Maksimal peminjaman adalah 4 buku selama 7 hari.";
     } else {
-      return "Maaf, saya belum memahami pertanyaan itu 🙏";
+      return "Maaf, saya belum memahami pertanyaan itu";
     }
   }
 
@@ -196,8 +193,6 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
-
-          // ================= INPUT =================
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: const BoxDecoration(

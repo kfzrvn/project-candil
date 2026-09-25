@@ -9,7 +9,7 @@ class PopulerPage extends StatelessWidget {
       backgroundColor: const Color(0xFFF4F6FB),
       body: Stack(
         children: [
-          // ================= HEADER BIRU (FIXED) =================
+          // HEADER BIRU
           Container(
             height: 230,
             width: double.infinity,
@@ -18,7 +18,7 @@ class PopulerPage extends StatelessWidget {
             ),
           ),
 
-          // ================= LENGKUNGAN WAVE (FIXED) =================
+          // LENGKUNGAN WAVE
           Positioned(
             top: 180,
             left: 0,
@@ -34,12 +34,11 @@ class PopulerPage extends StatelessWidget {
             ),
           ),
 
-          // ================= KONTEN UTAMA =================
+          // KONTEN UTAMA
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. APPBAR (FIXED)
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
@@ -63,8 +62,6 @@ class PopulerPage extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 10),
-
-                // 2. HIGHLIGHT #1 (FIXED - TIDAK IKUT SCROLL)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Container(
@@ -91,7 +88,6 @@ class PopulerPage extends StatelessWidget {
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(24),
                             ),
-                            // Menggunakan Image.asset langsung dengan errorBuilder
                           ),
                           child: ClipRRect(
                             borderRadius: const BorderRadius.vertical(
@@ -132,7 +128,6 @@ class PopulerPage extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: const [
-                                    Text("👑 ", style: TextStyle(fontSize: 14)),
                                     Text(
                                       "#1 Terpopuler Minggu Ini",
                                       style: TextStyle(
@@ -224,7 +219,7 @@ class PopulerPage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // 3. JUDUL SECTION (FIXED)
+                // JUDUL SECTION
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -238,7 +233,7 @@ class PopulerPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // 4. LIST BUKU LAINNYA (SCROLLABLE DENGAN FADE)
+                // LIST BUKU LAINNYA (SCROLLABLE DENGAN FADE)
                 Expanded(
                   child: ShaderMask(
                     shaderCallback: (Rect rect) {
@@ -258,8 +253,6 @@ class PopulerPage extends StatelessWidget {
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 30),
                       child: Column(
-                        // Saya sengaja menggunakan path gambar yang salah ('ngawur')
-                        // untuk mendemonstrasikan bahwa fallback icon-nya bekerja.
                         children: [
                           _buildOtherPopularItem(
                             rank: "2",
@@ -310,7 +303,7 @@ class PopulerPage extends StatelessWidget {
     );
   }
 
-  // ================= WIDGET PEMBANTU (YANG DIMODIFIKASI) =================
+  // WIDGET PEMBANTU
   Widget _buildOtherPopularItem({
     required String rank,
     required String title,
@@ -349,27 +342,22 @@ class PopulerPage extends StatelessWidget {
           ),
 
           const SizedBox(width: 8),
-
-          // [MODIFIKASI DI SINI] Gambar Thumbnail Buku dengan Fallback
           Container(
             height: 60,
             width: 45,
             decoration: BoxDecoration(
-              color: const Color(0xFFE8EDFF), // Warna background default
+              color: const Color(0xFFE8EDFF),
               borderRadius: BorderRadius.circular(8),
             ),
-            // Gunakan ClipRRect agar gambar/icon di dalamnya mengikuti radius sudut
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(
                 imagePath,
                 fit: BoxFit.cover,
-                // errorBuilder ini yang menangani jika gambar tidak ditemukan
                 errorBuilder: (context, error, stackTrace) {
-                  // Tampilkan icon buku di tengah sebagai pengganti
                   return const Center(
                     child: Icon(
-                      Icons.menu_book_rounded, // Icon buku
+                      Icons.menu_book_rounded,
                       color: Color(0xFF4F6CD9),
                       size: 24,
                     ),
@@ -381,7 +369,7 @@ class PopulerPage extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          // Info Teks (Judul, Penulis, Rating)
+          // Info Teks
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,7 +414,6 @@ class PopulerPage extends StatelessWidget {
             ),
           ),
 
-          // Icon Panah Kanan
           Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(

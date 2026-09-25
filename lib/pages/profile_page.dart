@@ -211,7 +211,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // ================= MENU ITEM
+  // MENU ITEM
   Widget _menuItem({
     required IconData icon,
     required String title,

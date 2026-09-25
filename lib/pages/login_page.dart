@@ -15,7 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // ================= iOS STYLE POPUP =================
+  // iOS POP UP
   void _showIosAlert(String title, String message) {
     showCupertinoDialog(
       context: context,
@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ================= LOGIN FIREBASE =================
+  // login firebase
   Future<void> _login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();

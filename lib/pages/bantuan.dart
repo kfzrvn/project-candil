@@ -17,11 +17,11 @@ class BantuanPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _bikinFaq('Cara pinjem buku gmn bang?',
-              'Tinggal pencet pinjam skrg di detail buku lu kira gmn lg 💀'),
+          _bikinFaq('Cara pinjem buku bagaimana bang?',
+              'Tinggal pencet pinjam skrg di detail buku lu kira gmn lg'),
           _bikinFaq('Kok buku gw ilang?',
-              'Cek riwayat pinjam ato denda lu jgn2 kelewat batas 🤓'),
-          _bikinFaq('Cara ganti pw gmn?', 'Ke menu edit profil king 🫩'),
+              'Cek riwayat pinjam ato denda lu jgn2 kelewat batas '),
+          _bikinFaq('Cara ganti pw gmn?', 'Ke menu edit profil king '),
         ],
       ),
     );

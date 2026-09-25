@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:candil/theme.dart';
+import 'package:candil/services/knowledge_service.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -12,54 +13,139 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  // Service untuk mengambil knowledge dari Firestore
+  final KnowledgeService _knowledgeService = KnowledgeService();
+
+  // Menyimpan percakapan
   List<Map<String, dynamic>> messages = [
     {
-      "text": "Halo 👋 Ada yang bisa saya bantu?",
+      "text": "Halo, ada yang bisa saya bantu?",
       "isUser": false,
-      "type": "text"
+      "type": "text",
     }
   ];
 
-  String getBotResponse(String message) {
-    message = message.toLowerCase();
+  // Menandakan chatbot sedang memproses pertanyaan
+  bool _isLoading = false;
 
-    if (message.contains("teknologi")) {
-      return "Buku Teknologi yang tersedia saat ini adalah:";
-    } else if (message.contains("pinjam")) {
-      return "Maksimal peminjaman adalah 4 buku selama 7 hari.";
-    } else {
-      return "Maaf, saya belum memahami pertanyaan itu 🙏";
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
-  void sendMessage() {
-    String text = _controller.text.trim();
-    if (text.isEmpty) return;
+  // ============================================================
+  // MENGIRIM PESAN
+  // ============================================================
 
+  Future<void> sendMessage() async {
+    final String text = _controller.text.trim();
+
+    if (text.isEmpty || _isLoading) {
+      return;
+    }
+
+    // Tampilkan pesan user
     setState(() {
-      messages.add({"text": text, "isUser": true, "type": "text"});
+      messages.add({
+        "text": text,
+        "isUser": true,
+        "type": "text",
+      });
+
+      _isLoading = true;
     });
 
     _controller.clear();
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {
-        messages.add(
-            {"text": getBotResponse(text), "isUser": false, "type": "text"});
+    scrollToBottom();
 
-        if (text.toLowerCase().contains("teknologi")) {
-          messages.add(
-              {"title": "Programmer Giardia", "isUser": false, "type": "card"});
-        }
+    // Beri sedikit jeda agar tampilan terasa natural
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    // Ambil jawaban berdasarkan knowledge Firestore
+    final String response = await getBotResponse(text);
+
+    if (!mounted) return;
+
+    setState(() {
+      messages.add({
+        "text": response,
+        "isUser": false,
+        "type": "text",
       });
-      scrollToBottom();
+
+      _isLoading = false;
     });
 
     scrollToBottom();
   }
 
+  // ============================================================
+  // MENCARI JAWABAN DARI FIRESTORE
+  // ============================================================
+
+  Future<String> getBotResponse(String message) async {
+    try {
+      // Ubah pertanyaan menjadi huruf kecil
+      final String question = message.toLowerCase().trim();
+
+      // Ambil seluruh knowledge dari Firestore
+      final List<Map<String, dynamic>> knowledge =
+          await _knowledgeService.getKnowledge();
+
+      // Kalau knowledge kosong
+      if (knowledge.isEmpty) {
+        return "Maaf, informasi belum tersedia pada sistem.";
+      }
+
+      // ----------------------------------------------------------
+      // MENCARI KNOWLEDGE YANG SESUAI
+      // ----------------------------------------------------------
+
+      for (final item in knowledge) {
+        final dynamic keywordsData = item['keywords'];
+
+        if (keywordsData == null) {
+          continue;
+        }
+
+        // Pastikan keywords berupa List
+        final List<dynamic> keywords = keywordsData is List ? keywordsData : [];
+
+        for (final keywordData in keywords) {
+          final String keyword = keywordData.toString().toLowerCase().trim();
+
+          if (keyword.isEmpty) {
+            continue;
+          }
+
+          // Jika pertanyaan mengandung keyword
+          if (question.contains(keyword)) {
+            final dynamic content = item['content'];
+
+            if (content != null && content.toString().trim().isNotEmpty) {
+              return content.toString();
+            }
+          }
+        }
+      }
+
+      return "Maaf, informasi tersebut belum tersedia pada sistem Candil.";
+    } catch (e) {
+      print("Error chatbot: $e");
+
+      return "Maaf, terjadi kendala saat mengambil informasi. Silakan coba lagi.";
+    }
+  }
+
   void scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 200), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!_scrollController.hasClients) {
+        return;
+      }
+
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
@@ -68,136 +154,191 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  // ============================================================
+  // CHAT BUBBLE
+  // ============================================================
+
+  Widget buildMessageBubble(Map<String, dynamic> msg) {
+    final bool isUser = msg["isUser"] == true;
+
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment:
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          // ICON BOT
+          if (!isUser)
+            const Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Color(0xFFE3ECFF),
+                child: Icon(
+                  Icons.smart_toy,
+                  size: 18,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+
+          // PESAN
+          Flexible(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                gradient: isUser
+                    ? const LinearGradient(
+                        colors: [
+                          Color(0xFF4A7BFF),
+                          Color(0xFF6FA3FF),
+                        ],
+                      )
+                    : null,
+                color: isUser ? null : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Text(
+                msg["text"].toString(),
+                style: TextStyle(
+                  color: isUser ? Colors.white : Colors.black87,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // TYPING INDICATOR
+  // ============================================================
+
+  Widget buildTypingIndicator() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: Color(0xFFE3ECFF),
+              child: Icon(
+                Icons.smart_toy,
+                size: 18,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: const SizedBox(
+              width: 30,
+              child: Text(
+                "...",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F4F8),
+
+      // ========================================================
+      // APP BAR
+      // ========================================================
+
       appBar: AppBar(
         backgroundColor: blue3,
         elevation: 0,
         title: const Text(
           "Chatbot Candil",
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
+
+      // ========================================================
+      // BODY
+      // ========================================================
+
       body: Column(
         children: [
+          // ======================================================
+          // LIST CHAT
+          // ======================================================
+
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                var msg = messages[index];
-                bool isUser = msg["isUser"];
 
-                if (msg["type"] == "card") {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(12),
-                      width: MediaQuery.of(context).size.width * 0.75,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          )
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Color(0xFFE3ECFF),
-                            child: Icon(Icons.smart_toy, color: Colors.blue),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  "Programmer Giardia",
-                                  style: TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                SizedBox(height: 6),
-                                Text(
-                                  "Buku pemrograman dasar yang cocok untuk pemula.",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  );
+              // Tambahkan 1 item untuk typing indicator
+              itemCount: messages.length + (_isLoading ? 1 : 0),
+
+              itemBuilder: (context, index) {
+                // Typing indicator
+                if (_isLoading && index == messages.length) {
+                  return buildTypingIndicator();
                 }
 
-                return Align(
-                  alignment:
-                      isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: isUser
-                        ? MainAxisAlignment.end
-                        : MainAxisAlignment.start,
-                    children: [
-                      if (!isUser)
-                        const Padding(
-                          padding: EdgeInsets.only(right: 8),
-                          child: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Color(0xFFE3ECFF),
-                            child: Icon(Icons.smart_toy,
-                                size: 18, color: Colors.blue),
-                          ),
-                        ),
-                      Flexible(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 6),
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            gradient: isUser
-                                ? const LinearGradient(
-                                    colors: [
-                                      Color(0xFF4A7BFF),
-                                      Color(0xFF6FA3FF)
-                                    ],
-                                  )
-                                : null,
-                            color: isUser ? null : Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              )
-                            ],
-                          ),
-                          child: Text(
-                            msg["text"],
-                            style: TextStyle(
-                              color: isUser ? Colors.white : Colors.black87,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                final msg = messages[index];
+
+                return buildMessageBubble(msg);
               },
             ),
           ),
+
+          // ======================================================
+          // INPUT MESSAGE
+          // ======================================================
+
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             decoration: const BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -205,18 +346,26 @@ class _ChatPageState extends State<ChatPage> {
                   blurRadius: 8,
                   color: Colors.black12,
                   offset: Offset(0, -2),
-                )
+                ),
               ],
             ),
             child: Row(
               children: [
+                // TEXT FIELD
                 Expanded(
                   child: TextField(
                     controller: _controller,
+                    enabled: !_isLoading,
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: (_) {
+                      sendMessage();
+                    },
                     decoration: InputDecoration(
                       hintText: "Tulis pesan...",
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       filled: true,
                       fillColor: const Color(0xFFF1F3F6),
                       border: OutlineInputBorder(
@@ -226,9 +375,12 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                 ),
+
                 const SizedBox(width: 10),
+
+                // SEND BUTTON
                 GestureDetector(
-                  onTap: sendMessage,
+                  onTap: _isLoading ? null : sendMessage,
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: const BoxDecoration(
@@ -241,10 +393,10 @@ class _ChatPageState extends State<ChatPage> {
                       size: 20,
                     ),
                   ),
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

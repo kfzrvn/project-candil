@@ -30,13 +30,11 @@ class KategoriPage extends StatelessWidget {
         scrolledUnderElevation: 0,
         centerTitle: true,
         leading: IconButton(
-          // [MODIFIKASI] Ubah warna icon back menjadi blue1
           icon: Icon(Icons.arrow_back_ios_new, color: blue1),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           "Kategori Buku",
-          // [MODIFIKASI] Ubah warna judul menjadi blue1
           style: bold18.copyWith(color: blue1),
         ),
       ),
