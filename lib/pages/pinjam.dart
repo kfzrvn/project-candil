@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:candil/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:candil/pages/borrowed_books_page.dart';
 
 class PinjamPage extends StatelessWidget {
   PinjamPage({super.key});
@@ -14,7 +15,7 @@ class PinjamPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20),
-          _buildMonitoringDashboard(),
+          _buildMonitoringDashboard(context),
           _buildSearchBar(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -64,78 +65,101 @@ class PinjamPage extends StatelessWidget {
   }
 
   // DASHBOARD
-  Widget _buildMonitoringDashboard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            Color.fromARGB(255, 203, 213, 240),
-            Color.fromARGB(255, 157, 181, 245),
-          ],
-          stops: [0.1, 0.6],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: blue3.withOpacity(0.4),
-            blurRadius: 25,
-            offset: Offset.zero,
-            spreadRadius: 6,
+  Widget _buildMonitoringDashboard(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const BorrowedBooksPage(),
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('peminjaman')
-                    .where(
-                      'userId',
-                      isEqualTo: FirebaseAuth.instance.currentUser!.uid,
-                    )
-                    .where('status', isEqualTo: 'dipinjam')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  int total = snapshot.data?.docs.length ?? 0;
-
-                  return Text(
-                    "$total Buku",
-                    style: bold18.copyWith(fontSize: 28, color: blue1),
-                  );
-                },
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "Sedang dipinjam",
-                style: regular14.copyWith(color: blue1),
-              ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              Color.fromARGB(255, 203, 213, 240),
+              Color.fromARGB(255, 157, 181, 245),
             ],
+            stops: [0.1, 0.6],
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: blue3.withOpacity(0.3), width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: blue3.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: blue3.withOpacity(0.4),
+              blurRadius: 25,
+              offset: Offset.zero,
+              spreadRadius: 6,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('peminjaman')
+                      .where(
+                        'userId',
+                        isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+                      )
+                      .where('status', isEqualTo: 'dipinjam')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    int total = snapshot.data?.docs.length ?? 0;
+
+                    return Text(
+                      "$total Buku",
+                      style: bold18.copyWith(
+                        fontSize: 28,
+                        color: blue1,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Sedang dipinjam",
+                  style: regular14.copyWith(
+                    color: blue1,
+                  ),
                 ),
               ],
             ),
-            child: Icon(Icons.auto_stories, color: blue3, size: 24),
-          ),
-        ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: blue3.withOpacity(0.3),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: blue3.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.auto_stories,
+                color: blue3,
+                size: 24,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
