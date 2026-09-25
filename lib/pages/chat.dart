@@ -3,7 +3,7 @@ import 'package:candil/theme.dart';
 import 'package:candil/services/knowledge_service.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  const ChatPage({super.key});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -13,20 +13,16 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // Service untuk mengambil knowledge dari Firestore
   final KnowledgeService _knowledgeService = KnowledgeService();
 
-  // Menyimpan percakapan
-  List<Map<String, dynamic>> messages = [
-    {
-      "text": "Halo, ada yang bisa saya bantu?",
-      "isUser": false,
-      "type": "text",
-    }
-  ];
-
-  // Menandakan chatbot sedang memproses pertanyaan
   bool _isLoading = false;
+
+  final List<Map<String, dynamic>> messages = [
+    {
+      'sender': 'bot',
+      'text': 'Halo! Ada yang bisa saya bantu?',
+    },
+  ];
 
   @override
   void dispose() {
@@ -35,45 +31,60 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  // ============================================================
-  // MENGIRIM PESAN
-  // ============================================================
+  Future<String> getBotResponse(String question) async {
+    final knowledgeList = await _knowledgeService.getKnowledge();
+
+    if (knowledgeList.isEmpty) {
+      return 'Maaf, informasi belum tersedia pada sistem Candil.';
+    }
+
+    final userQuestion = question.toLowerCase().trim();
+
+    for (final knowledge in knowledgeList) {
+      final keywords = knowledge['keywords'];
+
+      if (keywords is List) {
+        for (final keyword in keywords) {
+          final keywordText = keyword.toString().toLowerCase().trim();
+
+          if (userQuestion.contains(keywordText)) {
+            return knowledge['content']?.toString() ??
+                'Maaf, informasi tersebut belum tersedia.';
+          }
+        }
+      }
+    }
+
+    return 'Maaf, informasi tersebut belum tersedia pada sistem Candil.';
+  }
 
   Future<void> sendMessage() async {
-    final String text = _controller.text.trim();
+    final text = _controller.text.trim();
 
     if (text.isEmpty || _isLoading) {
       return;
     }
 
-    // Tampilkan pesan user
     setState(() {
       messages.add({
-        "text": text,
-        "isUser": true,
-        "type": "text",
+        'sender': 'user',
+        'text': text,
       });
 
+      _controller.clear();
       _isLoading = true;
     });
 
-    _controller.clear();
-
     scrollToBottom();
 
-    // Beri sedikit jeda agar tampilan terasa natural
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    // Ambil jawaban berdasarkan knowledge Firestore
-    final String response = await getBotResponse(text);
+    final response = await getBotResponse(text);
 
     if (!mounted) return;
 
     setState(() {
       messages.add({
-        "text": response,
-        "isUser": false,
-        "type": "text",
+        'sender': 'bot',
+        'text': response,
       });
 
       _isLoading = false;
@@ -82,66 +93,8 @@ class _ChatPageState extends State<ChatPage> {
     scrollToBottom();
   }
 
-  // ============================================================
-  // MENCARI JAWABAN DARI FIRESTORE
-  // ============================================================
-
-  Future<String> getBotResponse(String message) async {
-    try {
-      // Ubah pertanyaan menjadi huruf kecil
-      final String question = message.toLowerCase().trim();
-
-      // Ambil seluruh knowledge dari Firestore
-      final List<Map<String, dynamic>> knowledge =
-          await _knowledgeService.getKnowledge();
-
-      // Kalau knowledge kosong
-      if (knowledge.isEmpty) {
-        return "Maaf, informasi belum tersedia pada sistem.";
-      }
-
-      // ----------------------------------------------------------
-      // MENCARI KNOWLEDGE YANG SESUAI
-      // ----------------------------------------------------------
-
-      for (final item in knowledge) {
-        final dynamic keywordsData = item['keywords'];
-
-        if (keywordsData == null) {
-          continue;
-        }
-
-        // Pastikan keywords berupa List
-        final List<dynamic> keywords = keywordsData is List ? keywordsData : [];
-
-        for (final keywordData in keywords) {
-          final String keyword = keywordData.toString().toLowerCase().trim();
-
-          if (keyword.isEmpty) {
-            continue;
-          }
-
-          // Jika pertanyaan mengandung keyword
-          if (question.contains(keyword)) {
-            final dynamic content = item['content'];
-
-            if (content != null && content.toString().trim().isNotEmpty) {
-              return content.toString();
-            }
-          }
-        }
-      }
-
-      return "Maaf, informasi tersebut belum tersedia pada sistem Candil.";
-    } catch (e) {
-      print("Error chatbot: $e");
-
-      return "Maaf, terjadi kendala saat mengambil informasi. Silakan coba lagi.";
-    }
-  }
-
   void scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 100), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) {
         return;
       }
@@ -154,250 +107,182 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  // ============================================================
-  // CHAT BUBBLE
-  // ============================================================
-
-  Widget buildMessageBubble(Map<String, dynamic> msg) {
-    final bool isUser = msg["isUser"] == true;
+  Widget buildMessageBubble(Map<String, dynamic> message) {
+    final bool isUser = message['sender'] == 'user';
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          // ICON BOT
-          if (!isUser)
-            const Padding(
-              padding: EdgeInsets.only(right: 8),
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Color(0xFFE3ECFF),
-                child: Icon(
-                  Icons.smart_toy,
-                  size: 18,
-                  color: Colors.blue,
-                ),
-              ),
+      child: Container(
+        margin: const EdgeInsets.only(
+          bottom: 12,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.78,
+        ),
+        decoration: BoxDecoration(
+          color: isUser ? AppColors.primary : Colors.grey.shade200,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(
+              isUser ? 16 : 4,
             ),
-
-          // PESAN
-          Flexible(
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                gradient: isUser
-                    ? const LinearGradient(
-                        colors: [
-                          Color(0xFF4A7BFF),
-                          Color(0xFF6FA3FF),
-                        ],
-                      )
-                    : null,
-                color: isUser ? null : Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Text(
-                msg["text"].toString(),
-                style: TextStyle(
-                  color: isUser ? Colors.white : Colors.black87,
-                  fontSize: 14,
-                ),
-              ),
+            bottomRight: Radius.circular(
+              isUser ? 4 : 16,
             ),
           ),
-        ],
+        ),
+        child: Text(
+          message['text'] ?? '',
+          style: TextStyle(
+            color: isUser ? Colors.white : Colors.black87,
+            fontSize: 15,
+            height: 1.4,
+          ),
+        ),
       ),
     );
   }
-
-  // ============================================================
-  // TYPING INDICATOR
-  // ============================================================
 
   Widget buildTypingIndicator() {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Row(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 8),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: Color(0xFFE3ECFF),
-              child: Icon(
-                Icons.smart_toy,
-                size: 18,
-                color: Colors.blue,
-              ),
-            ),
+      child: Container(
+        margin: const EdgeInsets.only(
+          bottom: 12,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+            bottomLeft: Radius.circular(4),
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: const SizedBox(
-              width: 30,
-              child: Text(
-                "...",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+        ),
+        child: const SizedBox(
+          width: 35,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatar(
+                radius: 3,
+                backgroundColor: Colors.grey,
               ),
-            ),
+              CircleAvatar(
+                radius: 3,
+                backgroundColor: Colors.grey,
+              ),
+              CircleAvatar(
+                radius: 3,
+                backgroundColor: Colors.grey,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F8),
-
-      // ========================================================
-      // APP BAR
-      // ========================================================
-
       appBar: AppBar(
-        backgroundColor: blue3,
-        elevation: 0,
         title: const Text(
-          "Chatbot Candil",
+          'Chatbot Candil',
           style: TextStyle(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16),
+                itemCount: messages.length + (_isLoading ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (_isLoading && index == messages.length) {
+                    return buildTypingIndicator();
+                  }
 
-      // ========================================================
-      // BODY
-      // ========================================================
-
-      body: Column(
-        children: [
-          // ======================================================
-          // LIST CHAT
-          // ======================================================
-
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-
-              // Tambahkan 1 item untuk typing indicator
-              itemCount: messages.length + (_isLoading ? 1 : 0),
-
-              itemBuilder: (context, index) {
-                // Typing indicator
-                if (_isLoading && index == messages.length) {
-                  return buildTypingIndicator();
-                }
-
-                final msg = messages[index];
-
-                return buildMessageBubble(msg);
-              },
+                  return buildMessageBubble(
+                    messages[index],
+                  );
+                },
+              ),
             ),
-          ),
-
-          // ======================================================
-          // INPUT MESSAGE
-          // ======================================================
-
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 8,
-                  color: Colors.black12,
-                  offset: Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // TEXT FIELD
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    enabled: !_isLoading,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) {
-                      sendMessage();
-                    },
-                    decoration: InputDecoration(
-                      hintText: "Tulis pesan...",
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF1F3F6),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
+            Container(
+              padding: const EdgeInsets.fromLTRB(
+                12,
+                8,
+                12,
+                12,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      enabled: !_isLoading,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) {
+                        sendMessage();
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Tanyakan sesuatu...',
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
                       ),
                     ),
                   ),
-                ),
-
-                const SizedBox(width: 10),
-
-                // SEND BUTTON
-                GestureDetector(
-                  onTap: _isLoading ? null : sendMessage,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF4A7BFF),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.send,
-                      color: Colors.white,
-                      size: 20,
+                    child: IconButton(
+                      onPressed: _isLoading ? null : sendMessage,
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
