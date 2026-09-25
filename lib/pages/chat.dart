@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:candil/theme.dart';
 import 'package:candil/services/knowledge_service.dart';
 
 class ChatPage extends StatefulWidget {
@@ -31,33 +30,45 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
+  // ============================================================
+  // MENGAMBIL JAWABAN DARI FIRESTORE KNOWLEDGE
+  // ============================================================
   Future<String> getBotResponse(String question) async {
-    final knowledgeList = await _knowledgeService.getKnowledge();
+    try {
+      final knowledgeList = await _knowledgeService.getKnowledge();
 
-    if (knowledgeList.isEmpty) {
-      return 'Maaf, informasi belum tersedia pada sistem Candil.';
-    }
+      if (knowledgeList.isEmpty) {
+        return 'Maaf, informasi belum tersedia pada sistem Candil.';
+      }
 
-    final userQuestion = question.toLowerCase().trim();
+      final userQuestion = question.toLowerCase().trim();
 
-    for (final knowledge in knowledgeList) {
-      final keywords = knowledge['keywords'];
+      for (final knowledge in knowledgeList) {
+        final keywords = knowledge['keywords'];
 
-      if (keywords is List) {
-        for (final keyword in keywords) {
-          final keywordText = keyword.toString().toLowerCase().trim();
+        if (keywords is List) {
+          for (final keyword in keywords) {
+            final keywordText = keyword.toString().toLowerCase().trim();
 
-          if (userQuestion.contains(keywordText)) {
-            return knowledge['content']?.toString() ??
-                'Maaf, informasi tersebut belum tersedia.';
+            if (keywordText.isNotEmpty && userQuestion.contains(keywordText)) {
+              return knowledge['content']?.toString() ??
+                  'Maaf, informasi tersebut belum tersedia.';
+            }
           }
         }
       }
-    }
 
-    return 'Maaf, informasi tersebut belum tersedia pada sistem Candil.';
+      return 'Maaf, informasi tersebut belum tersedia pada sistem Candil.';
+    } catch (e) {
+      debugPrint('Error chatbot: $e');
+
+      return 'Maaf, terjadi kesalahan saat mengambil informasi. Silakan coba lagi.';
+    }
   }
 
+  // ============================================================
+  // MENGIRIM PESAN
+  // ============================================================
   Future<void> sendMessage() async {
     final text = _controller.text.trim();
 
@@ -79,7 +90,9 @@ class _ChatPageState extends State<ChatPage> {
 
     final response = await getBotResponse(text);
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       messages.add({
@@ -93,6 +106,9 @@ class _ChatPageState extends State<ChatPage> {
     scrollToBottom();
   }
 
+  // ============================================================
+  // SCROLL KE PESAN TERBARU
+  // ============================================================
   void scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) {
@@ -107,8 +123,17 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  Widget buildMessageBubble(Map<String, dynamic> message) {
+  // ============================================================
+  // BUBBLE PESAN
+  // ============================================================
+  Widget buildMessageBubble(
+    Map<String, dynamic> message,
+  ) {
     final bool isUser = message['sender'] == 'user';
+
+    // Menggunakan warna dari Theme Flutter,
+    // sehingga tidak bergantung pada AppColors.
+    final Color primaryColor = Theme.of(context).colorScheme.primary;
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -124,7 +149,7 @@ class _ChatPageState extends State<ChatPage> {
           maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.primary : Colors.grey.shade200,
+          color: isUser ? primaryColor : Colors.grey.shade200,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -137,7 +162,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ),
         child: Text(
-          message['text'] ?? '',
+          message['text']?.toString() ?? '',
           style: TextStyle(
             color: isUser ? Colors.white : Colors.black87,
             fontSize: 15,
@@ -148,6 +173,9 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  // ============================================================
+  // INDIKATOR BOT SEDANG MEMPROSES
+  // ============================================================
   Widget buildTypingIndicator() {
     return Align(
       alignment: Alignment.centerLeft,
@@ -192,8 +220,13 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
   @override
   Widget build(BuildContext context) {
+    final Color primaryColor = Theme.of(context).colorScheme.primary;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -206,6 +239,9 @@ class _ChatPageState extends State<ChatPage> {
       body: SafeArea(
         child: Column(
           children: [
+            // ==================================================
+            // DAFTAR PESAN
+            // ==================================================
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
@@ -222,6 +258,10 @@ class _ChatPageState extends State<ChatPage> {
                 },
               ),
             ),
+
+            // ==================================================
+            // INPUT PESAN
+            // ==================================================
             Container(
               padding: const EdgeInsets.fromLTRB(
                 12,
@@ -264,10 +304,15 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 8),
+
+                  // ==================================================
+                  // TOMBOL KIRIM
+                  // ==================================================
                   Container(
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: primaryColor,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
