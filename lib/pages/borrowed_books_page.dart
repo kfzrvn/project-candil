@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:candil/theme.dart';
 
 class BorrowedBooksPage extends StatelessWidget {
@@ -14,7 +13,12 @@ class BorrowedBooksPage extends StatelessWidget {
     if (user == null) {
       return const Scaffold(
         body: Center(
-          child: Text("Silakan login terlebih dahulu"),
+          child: Text(
+            "Silakan login terlebih dahulu",
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
         ),
       );
     }
@@ -36,25 +40,23 @@ class BorrowedBooksPage extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('peminjaman')
             .where(
-              'userId',
+              'userid',
               isEqualTo: user.uid,
-            )
-            .where(
-              'status',
-              isEqualTo: 'dipinjam',
-            )
-            .orderBy(
-              'tanggalPinjam',
-              descending: true,
             )
             .snapshots(),
         builder: (context, snapshot) {
+          //
+          // LOADING
+          //
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
 
+          //
+          // ERROR
+          //
           if (snapshot.hasError) {
             return Center(
               child: Padding(
@@ -62,52 +64,113 @@ class BorrowedBooksPage extends StatelessWidget {
                 child: Text(
                   "Terjadi kesalahan:\n${snapshot.error}",
                   textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
                 ),
               ),
             );
           }
 
+          //
+          // TIDAK ADA DATA
+          //
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.menu_book_outlined,
-                    size: 70,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(height: 15),
-                  Text(
-                    "Belum ada buku yang dipinjam",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            );
+            return const _EmptyBorrowedBooks();
           }
 
-          final loans = snapshot.data!.docs;
+          //
+          // AMBIL DATA
+          //
+          final loans = snapshot.data!.docs.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
 
+            return data['status']?.toString().toLowerCase() == 'dipinjam';
+          }).toList();
+
+          //
+          // URUTKAN BERDASARKAN TANGGAL
+          // TERBARU → TERLAMA
+          //
+          loans.sort((a, b) {
+            final dataA = a.data() as Map<String, dynamic>;
+            final dataB = b.data() as Map<String, dynamic>;
+
+            final tanggalA = dataA['tanggal'];
+            final tanggalB = dataB['tanggal'];
+
+            if (tanggalA is Timestamp && tanggalB is Timestamp) {
+              return tanggalB.compareTo(tanggalA);
+            }
+
+            return 0;
+          });
+
+          //
+          // TIDAK ADA BUKU YANG SEDANG DIPINJAM
+          //
+          if (loans.isEmpty) {
+            return const _EmptyBorrowedBooks();
+          }
+
+          //
+          // LIST BUKU
+          //
           return ListView.builder(
             padding: const EdgeInsets.all(20),
             itemCount: loans.length,
             itemBuilder: (context, index) {
               final loan = loans[index];
+              final data = loan.data() as Map<String, dynamic>;
 
-              final bookId = loan['bookId'];
-              final tanggalPinjam = loan['tanggalPinjam'] as Timestamp;
+              final bookId = data['bookId']?.toString();
+
+              final tanggalData = data['tanggal'];
+
+              // Pastikan data lengkap
+              if (bookId == null ||
+                  bookId.isEmpty ||
+                  tanggalData is! Timestamp) {
+                return const SizedBox.shrink();
+              }
+
+              final tanggalPinjam = tanggalData.toDate();
 
               return _BorrowedBookCard(
                 bookId: bookId,
-                tanggalPinjam: tanggalPinjam.toDate(),
+                tanggalPinjam: tanggalPinjam,
               );
             },
           );
         },
+      ),
+    );
+  }
+}
+
+class _EmptyBorrowedBooks extends StatelessWidget {
+  const _EmptyBorrowedBooks();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.menu_book_outlined,
+            size: 70,
+            color: Colors.grey,
+          ),
+          SizedBox(height: 15),
+          Text(
+            "Belum ada buku yang dipinjam",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -148,15 +211,28 @@ class _BorrowedBookCard extends StatelessWidget {
             ),
           );
         }
-
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const SizedBox();
+        if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Text(
+              "Data buku tidak ditemukan",
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          );
         }
 
         final book = snapshot.data!.data() as Map<String, dynamic>;
 
-        final title = book['JudulBuku'] ?? 'Judul tidak tersedia';
-        final author = book['Penulis'] ?? 'Penulis tidak tersedia';
+        final title = book['JudulBuku']?.toString() ?? 'Judul tidak tersedia';
+
+        final author = book['Penulis']?.toString() ?? 'Penulis tidak tersedia';
 
         return _buildCard(
           context,
@@ -202,27 +278,20 @@ class _BorrowedBookCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // JUDUL
           Text(
             title,
             style: bold18.copyWith(
               color: Colors.black87,
             ),
           ),
-
           const SizedBox(height: 5),
-
-          // PENULIS
           Text(
             "by $author",
             style: regular14.copyWith(
               color: Colors.grey.shade700,
             ),
           ),
-
           const SizedBox(height: 15),
-
-          // TANGGAL PINJAM
           Row(
             children: [
               const Icon(
@@ -237,10 +306,7 @@ class _BorrowedBookCard extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
-          // DEADLINE
           Row(
             children: [
               Icon(
@@ -259,10 +325,7 @@ class _BorrowedBookCard extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
-          // STATUS
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 12,
